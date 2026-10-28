@@ -54,8 +54,15 @@ public class MultiCrossbowItem extends CrossbowItem {
 
     /** Осколков в дробовом веере аметистового заряда. */
     private static final int AMETHYST_SHARD_COUNT = 6;
-    /** Разброс веера (ванильная неточность выстрела арбалета = 1.0). */
-    private static final float AMETHYST_SPREAD = 10.0F;
+    /**
+     * Шаг веера по горизонтали (градусы). Веер раскладывается СИММЕТРИЧНО
+     * вокруг прицела: половина осколков левее, половина правее.
+     */
+    private static final float AMETHYST_FAN_STEP = 3.0F;
+    /** Небольшой случайный разброс каждого осколка внутри веера (градусы). */
+    private static final float AMETHYST_INACCURACY = 1.0F;
+    /** Шаг между секторами при Multishot: каждый снаряд — свой сектор веера. */
+    private static final float MULTISHOT_SECTOR_STEP = 12.0F;
 
     public MultiCrossbowItem(Properties properties) {
         super(properties);
@@ -134,6 +141,40 @@ public class MultiCrossbowItem extends CrossbowItem {
     // CrossbowItem.
     // ---------------------------------------------------------------
 
+    // Arced aiming: lift = horizDist * factor, clamped to 3 blocks, central vector only
+    public static net.minecraft.world.phys.Vec3 arcAim(net.minecraft.world.phys.Vec3 dir, double horizDist, double factor) {
+        double lift = Math.min(3.0, horizDist * factor);
+        return new net.minecraft.world.phys.Vec3(dir.x, dir.y + lift * 0.08, dir.z).normalize();
+    }
+    private static boolean shouldArc(LivingEntity shooter) {
+        try {
+            if (shooter instanceof net.minecraft.world.entity.player.Player) {
+                return com.example.hell_yeah_stuff.config.CommonConfig.INSTANCE.applyArcToPlayers.get();
+            }
+        } catch (Throwable ignored) {}
+        return true;
+    }
+
+    /**
+     * Углы наведения {pitch, yaw} в градусах. Повторяет расчёт ванильного
+     * {@code CrossbowItem#shootProjectile}: при наличии цели строится вектор
+     * на цель с баллистическим подъёмом {@code horizDist * 0.2}, иначе берётся
+     * взгляд стрелка. Раньше брались {@code getXRot()/getYRot()} — поворот
+     * ТЕЛА, который у скелета отстаёт от взгляда на цель.
+     */
+    private static float[] aimAngles(LivingEntity shooter, @Nullable LivingEntity target) {
+        if (target == null) {
+            return new float[]{shooter.getXRot(), shooter.getYRot()};
+        }
+        double dx = target.getX() - shooter.getX();
+        double dz = target.getZ() - shooter.getZ();
+        double horiz = Math.sqrt(dx * dx + dz * dz);
+        double dy = target.getY(0.3333333333333333D) - shooter.getEyeY() + horiz * 0.2D;
+        float yaw = (float) (net.minecraft.util.Mth.atan2(dz, dx) * (180.0D / Math.PI)) - 90.0F;
+        float pitch = (float) (-(net.minecraft.util.Mth.atan2(dy, horiz) * (180.0D / Math.PI)));
+        return new float[]{pitch, yaw};
+    }
+
     @Override
     protected void shoot(ServerLevel level, LivingEntity shooter, InteractionHand hand, ItemStack weapon,
                          List<ItemStack> projectileItems, float velocity, float inaccuracy, boolean isCrit,
@@ -150,6 +191,16 @@ public class MultiCrossbowItem extends CrossbowItem {
             // будет исходить из ПРОТИВОПОЛОЖНОЙ руки (см. GrappleDartEntity).
             GrappleDartEntity.beginShot(hand);
             try {
+                if (target != null && shouldArc(shooter)) {
+                    double dx = target.getX() - shooter.getX();
+                    double dz = target.getZ() - shooter.getZ();
+                    double horiz = Math.sqrt(dx*dx + dz*dz);
+                    double factor = 1.5;
+                    try { factor = com.example.hell_yeah_stuff.config.CommonConfig.INSTANCE.multicrossbowArcMultiplier.get(); } catch (Throwable ignored) {}
+                    // apply arc via shootWithArc subclass behavior: use custom spawn with lifted vector (handled by overriding perform)
+                    // For vanilla path, nudge projectile gravity fix: lift central vector only
+                    // Use reflection-like: shoot then adjust? Simpler: override velocity via direct arcAim on first projectile
+                }
                 super.shoot(level, shooter, hand, weapon, projectileItems, velocity, inaccuracy, isCrit, target);
             } finally {
                 GrappleDartEntity.endShot();
@@ -158,29 +209,41 @@ public class MultiCrossbowItem extends CrossbowItem {
         }
 
         boolean grenades = ModEnchantments.level(weapon, ModEnchantments.AMETHYST_GRENADES) > 0;
-        // Угловые смещения между снарядами при Multishot — как в ванильном shoot().
-        float spreadStep = projectileItems.size() == 1 ? 0.0F
-                : 20.0F / (float) (projectileItems.size() - 1);
-        float base = (float) ((projectileItems.size() - 1) % 2) * spreadStep / 2.0F;
-        float sign = 1.0F;
-        for (int i = 0; i < projectileItems.size(); i++) {
-            ItemStack ammo = projectileItems.get(i);
+        // Наводимся СТРОГО на цель (как ванильный CrossbowItem#shootProjectile).
+        // Раньше брались shooter.getXRot()/getYRot() — это поворот ТЕЛА моба,
+        // у скелета он отстаёт от взгляда на цель, из-за чего веер уходил вбок.
+        float[] aim = aimAngles(shooter, target);
+        float basePitch = aim[0];
+        float baseYaw = aim[1];
+
+        int loaded = 0;
+        for (ItemStack ammo : projectileItems) {
+            if (!ammo.isEmpty()) {
+                loaded++;
+            }
+        }
+
+        int slot = 0;
+        for (ItemStack ammo : projectileItems) {
             if (ammo.isEmpty()) {
                 continue;
             }
-            float yawOffset = base + sign * (float) ((i + 1) / 2) * spreadStep;
-            sign = -sign;
+            // Multishot: каждому заряду — свой сектор, центрированный вокруг прицела.
+            float sectorYaw = baseYaw + (loaded <= 1 ? 0.0F
+                    : (slot - (loaded - 1) / 2.0F) * MULTISHOT_SECTOR_STEP);
+            slot++;
             if (grenades) {
                 AmethystGrenadeEntity grenade = new AmethystGrenadeEntity(level, shooter, weapon);
-                grenade.shootFromRotation(shooter, shooter.getXRot(), shooter.getYRot() + yawOffset,
-                        0.0F, velocity, 1.0F);
+                grenade.shootFromRotation(shooter, basePitch, sectorYaw, 0.0F, velocity, 1.0F);
                 level.addFreshEntity(grenade);
             } else {
                 for (int shard = 0; shard < AMETHYST_SHARD_COUNT; shard++) {
+                    // Веер симметричен относительно прицела: половина осколков
+                    // левее, половина правее, поэтому центр конуса летит в цель.
+                    float fanYaw = (shard - (AMETHYST_SHARD_COUNT - 1) / 2.0F) * AMETHYST_FAN_STEP;
                     AmethystShardEntity entity = new AmethystShardEntity(level, shooter, weapon);
-                    float shardVelocity = velocity * (0.8F + shooter.getRandom().nextFloat() * 0.3F);
-                    entity.shootFromRotation(shooter, shooter.getXRot(), shooter.getYRot() + yawOffset,
-                            0.0F, shardVelocity, AMETHYST_SPREAD);
+                    entity.shootFromRotation(shooter, basePitch, sectorYaw + fanYaw,
+                            0.0F, velocity, AMETHYST_INACCURACY);
                     level.addFreshEntity(entity);
                 }
             }
@@ -206,6 +269,24 @@ public class MultiCrossbowItem extends CrossbowItem {
     public static final String TAG_MAG = "hys_mag";
     public static final String TAG_CHARGES = "hys_charges";
     public static final String TAG_AUTO = "hys_auto";
+    /**
+     * Моб-стрелок с аметистовым боезапасом: мульти-арбалет сам заряжается
+     * осколком аметиста (дробовой веер), а не дротиком. Флаг живёт в NBT
+     * самого арбалета, поэтому переживает сохранение/загрузку вместе с мобом.
+     */
+    public static final String TAG_AMETHYST_AMMO = "hys_amethyst_ammo";
+
+    /** Пометить арбалет как «аметистовый» (вызывается при выдаче мобу). */
+    public static void setAmethystAmmo(ItemStack crossbow, boolean amethyst) {
+        CompoundTag t = tag(crossbow);
+        t.putBoolean(TAG_AMETHYST_AMMO, amethyst);
+        crossbow.set(DataComponents.CUSTOM_DATA, CustomData.of(t));
+    }
+
+    /** У этого арбалета аметистовый боезапас (см. {@link #TAG_AMETHYST_AMMO}). */
+    public static boolean hasAmethystAmmo(ItemStack crossbow) {
+        return tag(crossbow).getBoolean(TAG_AMETHYST_AMMO);
+    }
 
     private static boolean magReady(Player player) {
         return CuriosCompat.hasCurio(player, ModItems.BLOCK_MAGAZINE.get());

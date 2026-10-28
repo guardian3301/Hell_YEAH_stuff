@@ -2,7 +2,7 @@ package com.example.hell_yeah_stuff.registry;
 
 import com.example.hell_yeah_stuff.HellYeahStuffMod;
 import com.example.hell_yeah_stuff.item.AmethystBoltItem;
-import com.example.hell_yeah_stuff.item.BeltItem;
+import com.example.hell_yeah_stuff.item.BeltSlotCurioItem;
 import com.example.hell_yeah_stuff.item.DartItem;
 import com.example.hell_yeah_stuff.item.ExplosiveDartItem;
 import com.example.hell_yeah_stuff.item.GrappleDartItem;
@@ -11,7 +11,6 @@ import com.example.hell_yeah_stuff.item.MultiCrossbowItem;
 import com.example.hell_yeah_stuff.item.RailCrossbowItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Rarity;
-import net.neoforged.neoforge.common.DeferredSpawnEggItem;
 import net.neoforged.neoforge.registries.DeferredItem;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
@@ -50,18 +49,13 @@ public final class ModItems {
     public static final DeferredItem<Item> AMETHYST_BOLT = ITEMS.register("amethyst_bolt",
             () -> new AmethystBoltItem(new Item.Properties().rarity(Rarity.RARE)));
 
-    // Блочный магазин — аксессуар мульти-арбалета. Редкость RARE (аква), не стакается.
+    // Блочный магазин — Curios-аксессуар слота «belt»: мульти-арбалет дозаряжается сам.
     public static final DeferredItem<Item> BLOCK_MAGAZINE = ITEMS.register("block_magazine",
-            () -> new Item(new Item.Properties().stacksTo(1).rarity(Rarity.RARE)));
+            () -> new BeltSlotCurioItem(new Item.Properties().stacksTo(1).rarity(Rarity.RARE),
+                    "tooltip.hell_yeah_stuff.block_magazine"));
 
-    public static final DeferredItem<Item> GEODE_SKELETON_SPAWN_EGG = ITEMS.register("geode_skeleton_spawn_egg",
-            () -> new DeferredSpawnEggItem(ModEntities.GEODE_SKELETON, 0xC8A2FF, 0x5A3D8A, new Item.Properties()));
-
-    // Усиленная верёвка — аксессуар на ремень (Curios): трос крюка-кошки окрашивается в зелёный.
+    // Усиленная верёвка — Curios-аксессуар слота «belt»: трос крюка-кошки вдвое длиннее.
     public static final DeferredItem<Item> REINFORCED_ROPE = ITEMS.register("reinforced_rope",
-            () -> new Item(new Item.Properties().stacksTo(1).rarity(Rarity.RARE)));
-
-    /** Ремень — броня нагрудника, даёт слот за спиной. */
-    public static final DeferredItem<Item> BELT = ITEMS.register("belt",
-            () -> new BeltItem(new Item.Properties().stacksTo(1).rarity(Rarity.COMMON)));
+            () -> new BeltSlotCurioItem(new Item.Properties().stacksTo(1).rarity(Rarity.RARE),
+                    "tooltip.hell_yeah_stuff.reinforced_rope"));
 }

@@ -1,10 +1,8 @@
 package com.example.hell_yeah_stuff;
 
-import com.example.hell_yeah_stuff.config.BeltConfig;
+import com.example.hell_yeah_stuff.config.CommonConfig;
 import com.example.hell_yeah_stuff.registry.ModBlockEntities;
 import com.example.hell_yeah_stuff.registry.ModBlocks;
-import com.example.hell_yeah_stuff.registry.ModDataAttachments;
-import com.example.hell_yeah_stuff.registry.ModDataComponents;
 import com.example.hell_yeah_stuff.registry.ModEnchantmentEffects;
 import com.example.hell_yeah_stuff.registry.ModEntities;
 import com.example.hell_yeah_stuff.registry.ModFeatures;
@@ -22,7 +20,7 @@ public class HellYeahStuffMod {
     public static final String MODID = "hell_yeah_stuff";
 
     public HellYeahStuffMod(IEventBus modEventBus, ModContainer modContainer) {
-        modContainer.registerConfig(ModConfig.Type.COMMON, BeltConfig.SPEC);
+        modContainer.registerConfig(ModConfig.Type.COMMON, CommonConfig.SPEC);
         ModBlocks.BLOCKS.register(modEventBus);
         ModItems.ITEMS.register(modEventBus);
         ModEntities.ENTITY_TYPES.register(modEventBus);
@@ -31,8 +29,6 @@ public class HellYeahStuffMod {
         ModParticles.PARTICLE_TYPES.register(modEventBus);
         ModMobEffects.MOB_EFFECTS.register(modEventBus);
         ModEnchantmentEffects.ENCHANTMENT_ENTITY_EFFECTS.register(modEventBus);
-        ModDataComponents.DATA_COMPONENTS.register(modEventBus);
-        ModDataAttachments.ATTACHMENT_TYPES.register(modEventBus);
         ModBlockEntities.BLOCK_ENTITIES.register(modEventBus);
     }
 }

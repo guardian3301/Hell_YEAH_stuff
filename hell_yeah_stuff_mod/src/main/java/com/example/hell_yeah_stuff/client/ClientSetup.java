@@ -6,12 +6,7 @@ import com.example.hell_yeah_stuff.registry.ModEnchantments;
 import com.example.hell_yeah_stuff.registry.ModEntities;
 import com.example.hell_yeah_stuff.registry.ModItems;
 import com.example.hell_yeah_stuff.registry.ModParticles;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.resources.PlayerSkin;
-import net.minecraft.client.model.HumanoidModel;
-import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.client.renderer.item.ItemProperties;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.resources.ResourceLocation;
@@ -92,22 +87,6 @@ public final class ClientSetup {
     }
 
     @SubscribeEvent
-    static void onRegisterLayerDefinitions(EntityRenderersEvent.RegisterLayerDefinitions event) {
-        event.registerLayerDefinition(BeltModel.LAYER, BeltModel::createLayer);
-    }
-
-    @SubscribeEvent
-    static void onAddLayers(EntityRenderersEvent.AddLayers event) {
-        for (PlayerSkin.Model skin : event.getSkins()) {
-            var renderer = event.getSkin(skin);
-            if (renderer instanceof LivingEntityRenderer livingRenderer) {
-                addBeltLayers(livingRenderer);
-            }
-        }
-        // Geode skeleton also gets belt visuals if chest equipped (vanilla skeleton model)
-    }
-
-    @SubscribeEvent
     static void onRegisterRenderers(EntityRenderersEvent.RegisterRenderers event) {
         event.registerEntityRenderer(ModEntities.DART.get(), DartRenderer::new);
         event.registerEntityRenderer(ModEntities.EXPLOSIVE_DART.get(), ExplosiveDartRenderer::new);
@@ -116,7 +95,6 @@ public final class ClientSetup {
         event.registerEntityRenderer(ModEntities.AMETHYST_GRENADE.get(), AmethystGrenadeRenderer::new);
         event.registerEntityRenderer(ModEntities.IRON_BOLT.get(), IronBoltRenderer::new);
         event.registerEntityRenderer(ModEntities.AMETHYST_BOLT.get(), AmethystBoltRenderer::new);
-        event.registerEntityRenderer(ModEntities.GEODE_SKELETON.get(), GeodeSkeletonRenderer::new);
     }
 
     @SubscribeEvent
@@ -133,13 +111,6 @@ public final class ClientSetup {
     static void onRegisterClientExtensions(RegisterClientExtensionsEvent event) {
         event.registerItem(new MultiCrossbowClientExtensions(), ModItems.MULTI_CROSSBOW.get());
         event.registerItem(new RailCrossbowClientExtensions(), ModItems.RAIL_CROSSBOW.get());
-    }
-
-
-    @SuppressWarnings({"rawtypes", "unchecked"})
-    private static void addBeltLayers(LivingEntityRenderer renderer) {
-        renderer.addLayer(new BeltArmorLayer(renderer, Minecraft.getInstance().getEntityModels()));
-        renderer.addLayer(new BeltWeaponLayer(renderer));
     }
 
     private ClientSetup() {}

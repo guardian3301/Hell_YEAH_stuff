@@ -1,10 +1,7 @@
 package com.example.hell_yeah_stuff.worldgen;
-import com.example.hell_yeah_stuff.registry.ModEntities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.util.RandomSource;
-import net.minecraft.world.DifficultyInstance;
-import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
@@ -67,18 +64,6 @@ public class FloodedGeodePierFeature extends Feature<NoneFeatureConfiguration> {
         if(level.getBlockState(barrelPos).canBeReplaced()){
             level.setBlock(barrelPos,Blocks.BARREL.defaultBlockState(),2);
             // loot will be assigned via loot table data if desired; for now leave empty
-        }
-        // spawn 1-2 geode skeletons on pier
-        int count=1+rnd.nextInt(2);
-        for(int i=0;i<count;i++){
-            BlockPos sp=floor.relative(dir,rnd.nextInt(len)).above(hasWater? waterY - floor.getY()+1:1);
-            if(!level.getBlockState(sp).canBeReplaced() && !level.getBlockState(sp).isAir()) sp=sp.above();
-            var ent=ModEntities.GEODE_SKELETON.get().create(level.getLevel());
-            if(ent==null) continue;
-            ent.moveTo(sp.getX()+0.5,sp.getY(),sp.getZ()+0.5, rnd.nextFloat()*360f,0f);
-            DifficultyInstance diff=level.getCurrentDifficultyAt(sp);
-            ent.finalizeSpawn(level,diff,MobSpawnType.STRUCTURE,null);
-            level.addFreshEntity(ent);
         }
         return true;
     }

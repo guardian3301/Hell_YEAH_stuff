@@ -3,9 +3,12 @@
   "package": "com.example.hell_yeah_stuff.mixin",
   "compatibilityLevel": "JAVA_21",
   "minVersion": "0.8",
-  "mixins": [],
+  "mixins": [
+    "AbstractSkeletonMixin"
+  ],
   "client": [
-    "client.PlayerModelMixin"
+    "client.PlayerModelMixin",
+    "client.SkeletonModelMixin"
   ],
   "injectors": {
     "defaultRequire": 1

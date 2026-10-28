@@ -31,3 +31,9 @@ side = "BOTH"
 # NeoForge использует официальные маппинги в рантайме — refmap не нужен.
 [[mixins]]
 config = "hell_yeah_stuff.mixins.json"
+
+# Мягкие миксины совместимости со сторонними модами (required = false).
+# Сейчас: Death Keeper — защита от краша "Cannot encode empty ItemStack"
+# на могилах, где лежат предметы, удалённые из реестра.
+[[mixins]]
+config = "hell_yeah_stuff.compat.mixins.json"

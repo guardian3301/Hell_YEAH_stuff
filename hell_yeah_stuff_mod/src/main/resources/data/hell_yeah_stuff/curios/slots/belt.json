@@ -1,5 +1,8 @@
 {
   "replace": false,
+  "order": 190,
   "size": 1,
-  "operation": "SET"
+  "icon": "curios:slot/empty_belt_slot",
+  "add_cosmetic": true,
+  "render_toggle": true
 }

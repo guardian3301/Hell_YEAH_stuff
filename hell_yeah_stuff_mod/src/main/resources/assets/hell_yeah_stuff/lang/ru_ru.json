@@ -10,11 +10,14 @@
   "entity.hell_yeah_stuff.amethyst_shard": "Аметистовый осколок",
   "entity.hell_yeah_stuff.amethyst_grenade": "Аметистовая граната",
   "item.hell_yeah_stuff.block_magazine": "Блочный магазин",
+  "tooltip.hell_yeah_stuff.block_magazine": "Надевается в слот ремня (Curios): мульти-арбалет дозаряжается сам.",
+  "curios.identifier.belt": "Ремень",
   "entity.hell_yeah_stuff.dart": "Дротик",
   "entity.hell_yeah_stuff.explosive_dart": "Взрывной дротик",
   "entity.hell_yeah_stuff.grapple_dart": "Крюк-кошка",
   "key.categories.hell_yeah_stuff": "Hell Yeah Stuff",
   "item.hell_yeah_stuff.reinforced_rope": "Усиленная верёвка",
+  "tooltip.hell_yeah_stuff.reinforced_rope": "Надевается в слот ремня (Curios): трос крюка-кошки вдвое длиннее.",
   "enchantment.hell_yeah_stuff.dash": "Рывок",
   "key.hell_yeah_stuff.dash": "Рывок (зачарование поножей)",
   "item.hell_yeah_stuff.rail_crossbow": "Рельсовый арбалет",
@@ -24,10 +27,5 @@
   "entity.hell_yeah_stuff.amethyst_bolt": "Аметистовый болт",
   "block.hell_yeah_stuff.sharp_amethyst_dust": "Острая аметистовая пыль",
   "enchantment.hell_yeah_stuff.amethyst_condenser": "Аметистовый конденсатор",
-  "subtitles.hell_yeah_stuff.bolt_whistle": "Свист болта",
-  "entity.hell_yeah_stuff.geode_skeleton": "Жеодный скелет",
-  "item.hell_yeah_stuff.geode_skeleton_spawn_egg": "Яйцо жеодного скелета",
-  "item.hell_yeah_stuff.belt": "Ремень",
-  "key.hell_yeah_stuff.belt_swap": "Сменить с оружием за спиной (Ремень)",
-  "key.hell_yeah_stuff.belt_use": "Использовать предмет за спиной (Ремень)"
+  "subtitles.hell_yeah_stuff.bolt_whistle": "Свист болта"
 }

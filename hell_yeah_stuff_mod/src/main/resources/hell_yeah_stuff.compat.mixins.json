@@ -1,0 +1,12 @@
+{
+  "required": false,
+  "package": "com.example.hell_yeah_stuff.mixin.compat",
+  "compatibilityLevel": "JAVA_21",
+  "minVersion": "0.8",
+  "mixins": [
+    "DeathSnapshotMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 0
+  }
+}

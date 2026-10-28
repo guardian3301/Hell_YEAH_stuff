@@ -10,11 +10,14 @@
   "entity.hell_yeah_stuff.amethyst_shard": "Amethyst Shard",
   "entity.hell_yeah_stuff.amethyst_grenade": "Amethyst Grenade",
   "item.hell_yeah_stuff.block_magazine": "Block Magazine",
+  "tooltip.hell_yeah_stuff.block_magazine": "Equip in the belt slot (Curios): the multi crossbow reloads itself.",
+  "curios.identifier.belt": "Belt",
   "entity.hell_yeah_stuff.dart": "Dart",
   "entity.hell_yeah_stuff.explosive_dart": "Explosive Dart",
   "entity.hell_yeah_stuff.grapple_dart": "Grapple Dart",
   "key.categories.hell_yeah_stuff": "Hell Yeah Stuff",
   "item.hell_yeah_stuff.reinforced_rope": "Reinforced Rope",
+  "tooltip.hell_yeah_stuff.reinforced_rope": "Equip in the belt slot (Curios): the grapple rope reaches twice as far.",
   "enchantment.hell_yeah_stuff.dash": "Dash",
   "key.hell_yeah_stuff.dash": "Dash (Leggings Enchantment)",
   "item.hell_yeah_stuff.rail_crossbow": "Rail Crossbow",
@@ -24,10 +27,5 @@
   "entity.hell_yeah_stuff.amethyst_bolt": "Amethyst Bolt",
   "block.hell_yeah_stuff.sharp_amethyst_dust": "Sharp Amethyst Dust",
   "enchantment.hell_yeah_stuff.amethyst_condenser": "Amethyst Condenser",
-  "subtitles.hell_yeah_stuff.bolt_whistle": "Bolt Whistle",
-  "entity.hell_yeah_stuff.geode_skeleton": "Geode Skeleton",
-  "item.hell_yeah_stuff.geode_skeleton_spawn_egg": "Geode Skeleton Spawn Egg",
-  "item.hell_yeah_stuff.belt": "Belt",
-  "key.hell_yeah_stuff.belt_swap": "Swap with Back Slot (Belt)",
-  "key.hell_yeah_stuff.belt_use": "Use Back Item (Belt)"
+  "subtitles.hell_yeah_stuff.bolt_whistle": "Bolt Whistle"
 }
