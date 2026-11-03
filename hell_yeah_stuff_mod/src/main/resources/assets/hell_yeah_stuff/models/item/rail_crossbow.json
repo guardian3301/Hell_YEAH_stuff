@@ -116,6 +116,21 @@
     },
     {
       "predicate": {
+        "charged": 1,
+        "hell_yeah_stuff:syringe": 1
+      },
+      "model": "hell_yeah_stuff:item/rail_crossbow_syringe_bolt_empty"
+    },
+    {
+      "predicate": {
+        "charged": 1,
+        "hell_yeah_stuff:syringe": 1,
+        "hell_yeah_stuff:syringe_content": 1
+      },
+      "model": "hell_yeah_stuff:item/rail_crossbow_syringe_bolt"
+    },
+    {
+      "predicate": {
         "hell_yeah_stuff:regen": 0.001
       },
       "model": "hell_yeah_stuff:item/rail_crossbow_regenerating_1"

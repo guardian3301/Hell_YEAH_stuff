@@ -4,5 +4,11 @@
     "sounds": [
       "hell_yeah_stuff:bolt_whistle"
     ]
+  },
+  "spectral_detonation": {
+    "subtitle": "subtitles.hell_yeah_stuff.spectral_detonation",
+    "sounds": [
+      "hell_yeah_stuff:spectral_detonation"
+    ]
   }
 }

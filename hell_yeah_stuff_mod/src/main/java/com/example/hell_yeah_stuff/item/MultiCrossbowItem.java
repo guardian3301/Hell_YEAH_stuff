@@ -78,6 +78,16 @@ public class MultiCrossbowItem extends CrossbowItem {
         return SUPPORTED_AMMO;
     }
 
+    /**
+     * Боеприпас по умолчанию для креатива: ванильный родитель вернул бы
+     * обычную стрелу, которую мульти-арбалет не принимает, и предмет
+     * в креативе вообще не заряжался бы.
+     */
+    @Override
+    public ItemStack getDefaultCreativeAmmo(@Nullable Player player, ItemStack projectileWeaponItem) {
+        return new ItemStack(ModItems.DART.get());
+    }
+
     @Override
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
         // Активный крюк? Тогда ПКМ отцепляет с рывком — без зарядки/выстрела.

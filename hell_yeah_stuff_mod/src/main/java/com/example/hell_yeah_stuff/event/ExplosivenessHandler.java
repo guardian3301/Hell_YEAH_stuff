@@ -14,6 +14,10 @@ import net.neoforged.neoforge.event.entity.living.MobEffectEvent;
  * (через 3 секунды после попадания по мобу), в точке цели происходит тот же
  * взрыв, что и при попадании дротика в блок ({@link ExplosiveDartEntity#detonate}).
  * Если моб умер раньше — эффект снимается, а не истекает, и взрыва не будет.
+ *
+ * <p>Взрыв намеренно вызывается без источника ({@link ExplosiveDartEntity#detonateOnVictim}):
+ * носитель эффекта тоже должен получить урон, а {@code Level#getEntities(source, ...)}
+ * исключает source из списка целей.
  */
 @EventBusSubscriber(modid = HellYeahStuffMod.MODID)
 public final class ExplosivenessHandler {
@@ -28,8 +32,7 @@ public final class ExplosivenessHandler {
         if (instance == null || instance.getEffect().value() != ModMobEffects.EXPLOSIVENESS.get()) {
             return;
         }
-        ExplosiveDartEntity.detonate(entity.level(), entity,
-                entity.getX(), entity.getY(0.5D), entity.getZ());
+        ExplosiveDartEntity.detonateOnVictim(entity.level(), entity);
     }
 
     private ExplosivenessHandler() {}

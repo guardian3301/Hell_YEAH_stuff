@@ -17,5 +17,16 @@ public final class ModParticles {
     public static final DeferredHolder<ParticleType<?>, SimpleParticleType> DASH_TRAIL =
             PARTICLE_TYPES.register("dash_trail", () -> new SimpleParticleType(false));
 
+    /** Одна большая частица разряда спектрального конденсатора (см. SpectralRuptureParticle). */
+    public static final DeferredHolder<ParticleType<?>, SimpleParticleType> SPECTRAL_RUPTURE =
+            PARTICLE_TYPES.register("spectral_rupture", () -> new SimpleParticleType(true));
+
+    /**
+     * Горизонтальная частица-плейсхолдер, которая остаётся на месте упавшей
+     * после разряда гранаты (см. SpectralAftermathParticle).
+     */
+    public static final DeferredHolder<ParticleType<?>, SimpleParticleType> SPECTRAL_AFTERMATH =
+            PARTICLE_TYPES.register("spectral_aftermath", () -> new SimpleParticleType(true));
+
     private ModParticles() {}
 }

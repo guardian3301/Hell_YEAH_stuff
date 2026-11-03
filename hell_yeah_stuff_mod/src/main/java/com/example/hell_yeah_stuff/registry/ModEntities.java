@@ -8,6 +8,8 @@ import com.example.hell_yeah_stuff.entity.DartEntity;
 import com.example.hell_yeah_stuff.entity.ExplosiveDartEntity;
 import com.example.hell_yeah_stuff.entity.GrappleDartEntity;
 import com.example.hell_yeah_stuff.entity.IronBoltEntity;
+import com.example.hell_yeah_stuff.entity.SpectralCapacitorEntity;
+import com.example.hell_yeah_stuff.entity.SyringeBoltEntity;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
@@ -18,7 +20,6 @@ public final class ModEntities {
 
     public static final DeferredRegister<EntityType<?>> ENTITY_TYPES =
             DeferredRegister.create(Registries.ENTITY_TYPE, HellYeahStuffMod.MODID);
-
     public static final DeferredHolder<EntityType<?>, EntityType<DartEntity>> DART =
             ENTITY_TYPES.register("dart",
                     () -> EntityType.Builder.<DartEntity>of(DartEntity::new, MobCategory.MISC)
@@ -74,6 +75,22 @@ public final class ModEntities {
                             .clientTrackingRange(4)
                             .updateInterval(20)
                             .build("amethyst_bolt"));
+
+    public static final DeferredHolder<EntityType<?>, EntityType<SyringeBoltEntity>> SYRINGE_BOLT =
+            ENTITY_TYPES.register("syringe_bolt",
+                    () -> EntityType.Builder.<SyringeBoltEntity>of(SyringeBoltEntity::new, MobCategory.MISC)
+                            .sized(0.5F, 0.5F)
+                            .clientTrackingRange(4)
+                            .updateInterval(20)
+                            .build("syringe_bolt"));
+
+    public static final DeferredHolder<EntityType<?>, EntityType<SpectralCapacitorEntity>> SPECTRAL_CAPACITOR =
+            ENTITY_TYPES.register("spectral_capacitor",
+                    () -> EntityType.Builder.<SpectralCapacitorEntity>of(SpectralCapacitorEntity::new, MobCategory.MISC)
+                            .sized(0.35F, 0.35F)
+                            .clientTrackingRange(4)
+                            .updateInterval(10)
+                            .build("spectral_capacitor"));
 
     private ModEntities() {}
 }

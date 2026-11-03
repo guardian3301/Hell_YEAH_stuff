@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    "CHC",
+    "BIB",
+    " T "
+  ],
+  "key": {
+    "C": { "item": "hell_yeah_stuff:crossbow_block" },
+    "H": { "item": "minecraft:tripwire_hook" },
+    "B": { "item": "hell_yeah_stuff:bowstring" },
+    "I": { "item": "minecraft:iron_ingot" },
+    "T": { "item": "minecraft:stick" }
+  },
+  "result": {
+    "id": "hell_yeah_stuff:rail_crossbow",
+    "count": 1
+  }
+}

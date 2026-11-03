@@ -130,6 +130,19 @@ public class ExplosiveDartEntity extends AbstractArrow {
         level.explode(source, x, y, z, EXPLOSION_POWER, Level.ExplosionInteraction.TNT);
     }
 
+    /**
+     * Взрыв на самой цели эффекта «Взрывоопасность».
+     *
+     * <p>Источник взрыва — {@code null}, и это принципиально:
+     * {@code Level#getEntities(source, ...)} исключает source из списка целей,
+     * поэтому при передаче самой жертвы она бы урона не получила. Без direct
+     * source в зону попадают все, включая носителя эффекта.
+     */
+    public static void detonateOnVictim(Level level, LivingEntity victim) {
+        level.explode(null, victim.getX(), victim.getY(0.5D), victim.getZ(),
+                EXPLOSION_POWER, Level.ExplosionInteraction.TNT);
+    }
+
     private void explode() {
         detonate(this.level(), this, this.getX(), this.getY(), this.getZ());
         this.discard();

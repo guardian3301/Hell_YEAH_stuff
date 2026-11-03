@@ -1,0 +1,7 @@
+{
+  "parent": "hell_yeah_stuff:item/rail_crossbow",
+  "textures": {
+    "layer0": "hell_yeah_stuff:item/rail_crossbow_iron_bolt_content",
+    "layer1": "hell_yeah_stuff:item/rail_crossbow_syringe_bolt"
+  }
+}

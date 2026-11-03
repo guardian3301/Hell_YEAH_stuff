@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    { "item": "minecraft:string" },
+    { "item": "minecraft:redstone" },
+    { "item": "minecraft:redstone" }
+  ],
+  "result": {
+    "id": "hell_yeah_stuff:bowstring",
+    "count": 1
+  }
+}

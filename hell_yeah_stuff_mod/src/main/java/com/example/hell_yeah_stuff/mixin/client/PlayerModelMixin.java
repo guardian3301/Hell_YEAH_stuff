@@ -1,6 +1,7 @@
 package com.example.hell_yeah_stuff.mixin.client;
 
 import com.example.hell_yeah_stuff.client.GrappleArmAnimator;
+import com.example.hell_yeah_stuff.client.SyringeArmAnimator;
 import net.minecraft.client.model.PlayerModel;
 import net.minecraft.world.entity.LivingEntity;
 import org.spongepowered.asm.mixin.Mixin;
@@ -24,6 +25,9 @@ public abstract class PlayerModelMixin {
     private void hys$grappleRopeArm(LivingEntity entity, float limbSwing, float limbSwingAmount,
                                     float ageInTicks, float netHeadYaw, float headPitch,
                                     CallbackInfo ci) {
+        // Сначала шприц (одна рука), затем трос: у цепкого дротика поза
+        // приоритетнее — верёвка должна выходить ровно из кисти.
+        SyringeArmAnimator.pose((PlayerModel<?>) (Object) this, entity);
         GrappleArmAnimator.pose((PlayerModel<?>) (Object) this, entity);
     }
 }

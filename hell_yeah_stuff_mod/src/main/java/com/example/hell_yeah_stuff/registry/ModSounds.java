@@ -22,6 +22,14 @@ public final class ModSounds {
     public static final DeferredHolder<SoundEvent, SoundEvent> BOLT_WHISTLE =
             register("bolt_whistle");
 
+    /**
+     * Детонация спектрального конденсатора.
+     * Пока ПЛЕЙСХОЛДЕР: файла в assets/.../sounds нет, звук подменяется
+     * ванильным в точке вызова (см. SpectralCapacitorEntity#detonate).
+     */
+    public static final DeferredHolder<SoundEvent, SoundEvent> SPECTRAL_DETONATION =
+            register("spectral_detonation");
+
     private static DeferredHolder<SoundEvent, SoundEvent> register(String name) {
         return SOUND_EVENTS.register(name, () -> SoundEvent.createVariableRangeEvent(
                 ResourceLocation.fromNamespaceAndPath(HellYeahStuffMod.MODID, name)));

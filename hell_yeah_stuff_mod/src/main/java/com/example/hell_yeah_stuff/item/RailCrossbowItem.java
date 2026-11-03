@@ -18,6 +18,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.ChargedProjectiles;
 import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.level.Level;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Predicate;
 
@@ -63,7 +64,9 @@ public class RailCrossbowItem extends CrossbowItem {
 
     /** Арбалет принимает только болты мода. Стрелы и фейерверки отклоняются. */
     public static final Predicate<ItemStack> SUPPORTED_AMMO =
-            stack -> stack.is(ModItems.IRON_BOLT.get()) || stack.is(ModItems.AMETHYST_BOLT.get());
+            stack -> stack.is(ModItems.IRON_BOLT.get())
+                    || stack.is(ModItems.AMETHYST_BOLT.get())
+                    || stack.is(ModItems.SYRINGE_BOLT.get());
 
     public RailCrossbowItem(Properties properties) {
         super(properties);
@@ -79,6 +82,16 @@ public class RailCrossbowItem extends CrossbowItem {
         return SUPPORTED_AMMO;
     }
 
+    /**
+     * Боеприпас по умолчанию для креатива. Без этого переопределения
+     * ванильный {@code ProjectileWeaponItem} подсовывает обычную стрелу,
+     * и арбалет в креативе стрелял бы не болтом мода.
+     */
+    @Override
+    public ItemStack getDefaultCreativeAmmo(@Nullable Player player, ItemStack projectileWeaponItem) {
+        return new ItemStack(ModItems.IRON_BOLT.get());
+    }
+
     /** Заряжен ли арбалет (в компоненте лежит болт). */
     public static boolean isCharged(ItemStack stack) {
         ChargedProjectiles charged = stack.get(DataComponents.CHARGED_PROJECTILES);
@@ -89,6 +102,46 @@ public class RailCrossbowItem extends CrossbowItem {
     public static boolean isAmethystLoaded(ItemStack stack) {
         ChargedProjectiles charged = stack.get(DataComponents.CHARGED_PROJECTILES);
         return charged != null && charged.contains(ModItems.AMETHYST_BOLT.get());
+    }
+
+    /** Заряжен ли арбалет шприц-болтом (для модели и слоя жидкости). */
+    public static boolean isSyringeLoaded(ItemStack stack) {
+        ChargedProjectiles charged = stack.get(DataComponents.CHARGED_PROJECTILES);
+        return charged != null && charged.contains(ModItems.SYRINGE_BOLT.get());
+    }
+
+    /**
+     * Заряжен ли арбалет шприц-болтом С эффектом.
+     *
+     * <p>Разделение нужно модели: пустой болт (без содержимого) рисуется
+     * отдельной текстурой {@code rail_crossbow_syringe_bolt_empty}, а с
+     * эффектом — корпусом плюс тонируемым слоем жидкости.
+     */
+    public static boolean isSyringeLoadedWithContent(ItemStack stack) {
+        ChargedProjectiles charged = stack.get(DataComponents.CHARGED_PROJECTILES);
+        if (charged == null) {
+            return false;
+        }
+        for (ItemStack ammo : charged.getItems()) {
+            if (ammo.is(ModItems.SYRINGE_BOLT.get()) && SyringeEffects.isCharged(ammo)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /** Цвет жидкости в заряженном шприц-болте (-1 — не тонируется). */
+    public static int syringeColor(ItemStack stack) {
+        ChargedProjectiles charged = stack.get(DataComponents.CHARGED_PROJECTILES);
+        if (charged == null) {
+            return SyringeEffects.NO_COLOR;
+        }
+        for (ItemStack ammo : charged.getItems()) {
+            if (ammo.is(ModItems.SYRINGE_BOLT.get())) {
+                return SyringeEffects.color(ammo);
+            }
+        }
+        return SyringeEffects.NO_COLOR;
     }
 
     // ------------------------------------------------------------------

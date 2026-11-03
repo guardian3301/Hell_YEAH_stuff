@@ -2,6 +2,7 @@ package com.example.hell_yeah_stuff.client;
 
 import com.example.hell_yeah_stuff.HellYeahStuffMod;
 import com.example.hell_yeah_stuff.item.RailCrossbowItem;
+import com.example.hell_yeah_stuff.item.SyringeEffects;
 import com.example.hell_yeah_stuff.registry.ModEnchantments;
 import com.example.hell_yeah_stuff.registry.ModEntities;
 import com.example.hell_yeah_stuff.registry.ModItems;
@@ -12,6 +13,7 @@ import net.minecraft.core.component.DataComponents;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.item.CrossbowItem;
 import net.minecraft.world.item.component.ChargedProjectiles;
 import net.neoforged.api.distmarker.Dist;
@@ -19,6 +21,7 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
+import net.neoforged.neoforge.client.event.RegisterColorHandlersEvent;
 import net.neoforged.neoforge.client.event.RegisterItemDecorationsEvent;
 import net.neoforged.neoforge.client.event.RegisterParticleProvidersEvent;
 import net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsEvent;
@@ -78,6 +81,20 @@ public final class ClientSetup {
                 (stack, level, entity, seed) -> { long now = gameTime(level, entity); if (!RailCrossbowItem.isRegenerating(stack, now)) return 0.0F; return 0.01F + RailCrossbowItem.regenProgress(stack, now) * 0.99F; });
             ItemProperties.register(crossbow, ResourceLocation.fromNamespaceAndPath(HellYeahStuffMod.MODID, "condenser"),
                 (stack, level, entity, seed) -> ModEnchantments.level(stack, ModEnchantments.AMETHYST_CONDENSER) / 3.0F);
+            ItemProperties.register(crossbow, ResourceLocation.fromNamespaceAndPath(HellYeahStuffMod.MODID, "syringe"),
+                (stack, level, entity, seed) -> RailCrossbowItem.isSyringeLoaded(stack) ? 1.0F : 0.0F);
+            // Есть ли в заряженном шприц-болте эффект: 0 — пустой болт
+            // (текстура rail_crossbow_syringe_bolt_empty), 1 — с жидкостью.
+            ItemProperties.register(crossbow, ResourceLocation.fromNamespaceAndPath(HellYeahStuffMod.MODID, "syringe_content"),
+                (stack, level, entity, seed) -> RailCrossbowItem.isSyringeLoadedWithContent(stack) ? 1.0F : 0.0F);
+            // Уровень заполнения: 100% — боевой шприц заряжен, 75% — шприц-болт
+            // (он несёт только 75% длительности эффекта).
+            ItemProperties.register(ModItems.BATTLE_SYRINGE.get(),
+                    ResourceLocation.fromNamespaceAndPath(HellYeahStuffMod.MODID, "fill"),
+                    (stack, level, entity, seed) -> SyringeEffects.isCharged(stack) ? 1.0F : 0.0F);
+            ItemProperties.register(ModItems.SYRINGE_BOLT.get(),
+                    ResourceLocation.fromNamespaceAndPath(HellYeahStuffMod.MODID, "fill"),
+                    (stack, level, entity, seed) -> SyringeEffects.isCharged(stack) ? 0.75F : 0.0F);
         });
     }
 
@@ -95,22 +112,59 @@ public final class ClientSetup {
         event.registerEntityRenderer(ModEntities.AMETHYST_GRENADE.get(), AmethystGrenadeRenderer::new);
         event.registerEntityRenderer(ModEntities.IRON_BOLT.get(), IronBoltRenderer::new);
         event.registerEntityRenderer(ModEntities.AMETHYST_BOLT.get(), AmethystBoltRenderer::new);
+        event.registerEntityRenderer(ModEntities.SYRINGE_BOLT.get(), SyringeBoltRenderer::new);
+        event.registerEntityRenderer(ModEntities.SPECTRAL_CAPACITOR.get(),
+                context -> new net.minecraft.client.renderer.entity.ThrownItemRenderer<>(context, 1.4F, false));
     }
 
     @SubscribeEvent
     static void onRegisterParticleProviders(RegisterParticleProvidersEvent event) {
         event.registerSpriteSet(ModParticles.DASH_TRAIL.get(), sprites -> new DashTrailParticle.Provider(sprites));
+        // Одна большая частица разряда конденсатора.
+        event.registerSpriteSet(ModParticles.SPECTRAL_RUPTURE.get(),
+                sprites -> new SpectralRuptureParticle.Provider(sprites));
+        // Горизонтальный плейсхолдер, остающийся после разряда.
+        event.registerSpriteSet(ModParticles.SPECTRAL_AFTERMATH.get(),
+                sprites -> new SpectralAftermathParticle.Provider(sprites));
     }
 
     @SubscribeEvent
     static void onRegisterItemDecorations(RegisterItemDecorationsEvent event) {
         event.register(ModItems.MULTI_CROSSBOW.get(), new MagazineBarDecorator());
+        // Полоска заряда конденсатора — та же плашка, что у арбалетов.
+        event.register(ModItems.SPECTRAL_CAPACITOR.get(), new CapacitorBarDecorator());
     }
 
     @SubscribeEvent
     static void onRegisterClientExtensions(RegisterClientExtensionsEvent event) {
         event.registerItem(new MultiCrossbowClientExtensions(), ModItems.MULTI_CROSSBOW.get());
         event.registerItem(new RailCrossbowClientExtensions(), ModItems.RAIL_CROSSBOW.get());
+        // Арбалетная поза рук: укол (charge) и заряженный предмет (hold).
+        event.registerItem(new SyringeClientExtensions(),
+                ModItems.BATTLE_SYRINGE.get(), ModItems.SYRINGE_BOLT.get());
+        // Зелье во второй руке при заливке в шприц — статичная поза «у рта».
+        // Ванильные зелья своих расширений не имеют, поэтому регистрация
+        // не конфликтует; обычное питьё обрабатывается как раньше.
+        event.registerItem(new PotionClientExtensions(),
+                Items.POTION, Items.SPLASH_POTION, Items.LINGERING_POTION);
+    }
+
+    /**
+     * Тонировка слоя жидкости.
+     *
+     * <p>В моделях шприца/болта {@code layer0} — жидкость (tintindex 0),
+     * {@code layer1} — корпус (tintindex 1). Цвет берётся из
+     * {@code potion_contents}: усреднение цветов эффектов с весом
+     * «уровень + 1», ровно как у ванильного зелья. Для остальных слоёв
+     * возвращается -1 (без тонировки).
+     */
+    @SubscribeEvent
+    static void onRegisterItemColors(RegisterColorHandlersEvent.Item event) {
+        event.register((stack, tintIndex) -> tintIndex == 0 ? SyringeEffects.color(stack) : -1,
+                ModItems.BATTLE_SYRINGE.get(), ModItems.SYRINGE_BOLT.get());
+        event.register((stack, tintIndex) -> tintIndex == 0
+                        ? RailCrossbowItem.syringeColor(stack) : -1,
+                ModItems.RAIL_CROSSBOW.get());
     }
 
     private ClientSetup() {}

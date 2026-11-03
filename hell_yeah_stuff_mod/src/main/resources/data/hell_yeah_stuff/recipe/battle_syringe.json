@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    " LT",
+    " BH",
+    "I  "
+  ],
+  "key": {
+    "L": { "item": "minecraft:leather" },
+    "T": { "item": "minecraft:stick" },
+    "B": { "item": "minecraft:glass_bottle" },
+    "H": { "item": "minecraft:tripwire_hook" },
+    "I": { "item": "minecraft:iron_ingot" }
+  },
+  "result": {
+    "id": "hell_yeah_stuff:battle_syringe",
+    "count": 1
+  }
+}
