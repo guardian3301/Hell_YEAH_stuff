@@ -34,11 +34,38 @@ import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
 public class SyringeClientExtensions implements IClientItemExtensions {
 
     /**
-     * Подъём шприца при заливке из зелья — 4 единицы модели (4/16 = 0.25 блока).
-     * В первом лице единица PoseStack равна одному пикселю текстуры предмета,
-     * поэтому переводим 4 единицы в 0.25.
+     * Подъём шприца при заливке из зелья — 5.5 единицы модели
+     * (5.5/16 = 0.34375 блока). В первом лице единица PoseStack равна одному
+     * пикселю текстуры предмета, поэтому переводим 5.5 единицы в 5.5/16.
      */
-    public static final float FILL_LIFT = 4.0F / 16.0F;
+    public static final float FILL_LIFT = 7.6F / 16.0F;
+
+    /**
+     * Наклон при заливке — поворот спрайта в плоскости экрана.
+     *
+     * <p>Наша трансформация применяется ДО display-трансформации предмета
+     * (см. {@code ItemRenderer#render}: сначала {@code applyForgeHandTransform},
+     * потом {@code handleCameraTransforms}), поэтому ось Z здесь — ось «из
+     * экрана», и поворот вокруг неё разворачивает предмет как картинку:
+     * один конец поднимается, другой опускается.
+     *
+     * <p>Отрицательный угол поворачивает спрайт по часовой стрелке, если
+     * смотреть на экран: правый верхний угол (там нарисован конец иглы)
+     * уходит вниз-влево, к бутылке во второй руке, а хвост поднимается.
+     * Именно это и нужно — игла ложится к горлышку зелья.
+     *
+     * <p>Для левой руки знак зеркалится множителем {@code side}.
+     *
+     * <p>Если в игре наклон окажется в другую сторону, поменяйте знак.
+     */
+    public static final float FILL_TILT = -40.0F;
+
+    /**
+     * Сдвиг шприца к бутылке во второй руке (в блоках, по X от своей руки
+     * к центру экрана). Без него игла не дотягивается до горлышка: руки
+     * разнесены на ширину плеч, а предмет маленький.
+     */
+    public static final float FILL_INWARD = 0.27F;
 
     /**
      * Поза для руки с предметом. Всегда {@code ITEM}: арбалетную позу одной
@@ -55,8 +82,9 @@ public class SyringeClientExtensions implements IClientItemExtensions {
      *
      * <p>Два разных положения:
      * <ul>
-     *   <li><b>заливка из зелья</b> — шприц поднимается на {@link #FILL_LIFT}
-     *       (4 единицы = 4/16 блока) вверх, рука при этом в обычном положении;</li>
+     *   <li><b>заливка из зелья</b> — шприц поднимается на {@link #FILL_LIFT},
+     *       сдвигается к бутылке на {@link #FILL_INWARD} и наклоняется на
+     *       {@link #FILL_TILT}: конец иглы опускается к горлышку зелья;</li>
      *   <li><b>укол себе</b> — предмет встаёт в позицию натянутого арбалета.</li>
      * </ul>
      *
@@ -76,10 +104,15 @@ public class SyringeClientExtensions implements IClientItemExtensions {
             return false;
         }
 
-        // Заливка из зелья: шприц просто поднимается над обычным положением руки.
+        // Заливка из зелья: шприц поднимается, подтягивается к бутылке во
+        // второй руке и наклоняется так, чтобы конец иглы лёг к горлышку.
         if (SyringeEffects.canFillFromPotion(player, usedHand)) {
+            int side = arm == HumanoidArm.RIGHT ? 1 : -1;
             applyItemArmTransform(poseStack, arm, equipProcess);
-            poseStack.translate(0.0F, FILL_LIFT, 0.0F);
+            // К центру экрана (к бутылке) и вверх.
+            poseStack.translate(side * -FILL_INWARD, FILL_LIFT, 0.0F);
+            // Игла (правый верхний угол спрайта) вниз-влево, хвост вверх.
+            poseStack.mulPose(Axis.ZP.rotationDegrees(side * FILL_TILT));
             return true;
         }
 

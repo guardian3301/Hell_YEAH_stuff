@@ -1,6 +1,6 @@
 plugins {
     id 'java-library'
-    id 'net.neoforged.moddev' version '2.0.78'
+    id 'net.neoforged.moddev' version '2.0.148'
 }
 
 group = 'com.example.hell_yeah_stuff'
@@ -13,7 +13,7 @@ java {
 }
 
 neoForge {
-    version = '21.1.233'
+    version = '21.1.265'
 
     runs {
         client {

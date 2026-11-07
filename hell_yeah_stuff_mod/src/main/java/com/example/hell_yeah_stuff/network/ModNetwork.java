@@ -10,7 +10,7 @@ import net.neoforged.neoforge.network.handling.IPayloadContext;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 
 /** Регистрация сетевых пакетов оставшегося контента мода. */
-@EventBusSubscriber(modid = HellYeahStuffMod.MODID, bus = EventBusSubscriber.Bus.MOD)
+@EventBusSubscriber(modid = HellYeahStuffMod.MODID)
 public final class ModNetwork {
 
     @SubscribeEvent

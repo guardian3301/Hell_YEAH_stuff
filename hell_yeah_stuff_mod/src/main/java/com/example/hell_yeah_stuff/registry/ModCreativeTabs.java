@@ -24,7 +24,7 @@ import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
  * элемента, поэтому модовые предметы выстраиваются в том порядке, в котором
  * вызываются вставки.
  */
-@EventBusSubscriber(modid = HellYeahStuffMod.MODID, bus = EventBusSubscriber.Bus.MOD)
+@EventBusSubscriber(modid = HellYeahStuffMod.MODID)
 public final class ModCreativeTabs {
 
     private static final CreativeModeTab.TabVisibility BOTH =

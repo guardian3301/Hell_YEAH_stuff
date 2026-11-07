@@ -32,7 +32,7 @@ public final class ModKeyMappings {
     private static final double DASH_UP = 0.18D;
     private static long lastDashGameTime = -1000L;
 
-    @EventBusSubscriber(modid = HellYeahStuffMod.MODID, value = Dist.CLIENT, bus = EventBusSubscriber.Bus.MOD)
+    @EventBusSubscriber(modid = HellYeahStuffMod.MODID, value = Dist.CLIENT)
     public static final class Registration {
         @SubscribeEvent
         static void onRegisterKeyMappings(RegisterKeyMappingsEvent event) {

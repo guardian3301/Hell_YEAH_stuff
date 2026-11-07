@@ -37,5 +37,7 @@
   "tooltip.hell_yeah_stuff.spectral_capacitor.charged": "Заряжен — можно бросать",
   "entity.hell_yeah_stuff.spectral_capacitor": "Спектральный конденсатор",
   "subtitles.hell_yeah_stuff.spectral_detonation": "Детонация спектрального конденсатора",
-  "subtitles.hell_yeah_stuff.bolt_whistle": "Свист болта"
+  "subtitles.hell_yeah_stuff.bolt_whistle": "Свист болта",
+  "painting.hell_yeah_stuff.stranger.title": "Незнакомец",
+  "painting.hell_yeah_stuff.stranger.author": "guardianscode"
 }

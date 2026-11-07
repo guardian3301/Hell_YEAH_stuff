@@ -25,11 +25,53 @@
       "skillPath": "skills/game-recon/SKILL.md",
       "computedHash": "dc88d85adb17aae10875ef29364fe42283382e3b97cfe84083dd3683271ba7b2"
     },
+    "grill-me": {
+      "source": "mattpocock/skills",
+      "sourceType": "github",
+      "skillPath": "skills/productivity/grill-me/SKILL.md",
+      "computedHash": "5e0c683385eafd83f106ac6c9d67dfbbfe5aa4b3fe65aad114eb1055a99c818f"
+    },
+    "java-fundamentals": {
+      "source": "pluginagentmarketplace/custom-plugin-java",
+      "sourceType": "github",
+      "skillPath": "skills/java-fundamentals/SKILL.md",
+      "computedHash": "ac351c260ab6c76ba8f728103dfcd432e16b5e2d28428c8684cf451c7f83e071"
+    },
+    "java-jpa-hibernate": {
+      "source": "pluginagentmarketplace/custom-plugin-java",
+      "sourceType": "github",
+      "skillPath": "skills/java-jpa-hibernate/SKILL.md",
+      "computedHash": "16d57e6fc655423b66191c0b9e9bca7b59080d8a06f9740a9f5cde9a2d9c082e"
+    },
+    "java-microservices": {
+      "source": "pluginagentmarketplace/custom-plugin-java",
+      "sourceType": "github",
+      "skillPath": "skills/java-microservices/SKILL.md",
+      "computedHash": "d4c0c5e302e75041d4eb9bf0782110d2fd1efcdf23efe650bac3122816aa9ec4"
+    },
+    "java-spring-boot": {
+      "source": "pluginagentmarketplace/custom-plugin-java",
+      "sourceType": "github",
+      "skillPath": "skills/java-spring-boot/SKILL.md",
+      "computedHash": "c1d1523ec6ead1de3c7efd73e7a6041af983ef0dc38ae2050f75c6375ba6b7ae"
+    },
+    "legacy-refactor-pilot": {
+      "source": "petrovicistefan/claude-code-plugins",
+      "sourceType": "github",
+      "skillPath": "legacy-refactor-pilot/skills/legacy-refactor-pilot/SKILL.md",
+      "computedHash": "8fb7824b14d33f76b308c4df7c25867d84e3fdb10665a98b6abe2fedd6f12eeb"
+    },
     "mashup-mods": {
       "source": "rehan-remade/universal-modder",
       "sourceType": "github",
       "skillPath": "skills/mashup-mods/SKILL.md",
       "computedHash": "7c665cd9c948faa328206b9b2df16a824442b839c45b78520ea9b2f4bf3b6afa"
+    },
+    "memoryvault": {
+      "source": "cairn-agent/memoryvault-skill",
+      "sourceType": "github",
+      "skillPath": "SKILL.md",
+      "computedHash": "9426c4e0dae6891dc2b9b2def98cf6ff9c7626e6b4ad7ad4d69932fd1113f4aa"
     },
     "mod-any-game": {
       "source": "rehan-remade/universal-modder",

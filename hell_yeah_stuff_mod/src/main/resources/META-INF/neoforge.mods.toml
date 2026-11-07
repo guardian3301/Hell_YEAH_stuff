@@ -1,6 +1,6 @@
 modLoader = "javafml"
-# ponytail: широкий диапазон, чтобы не гадать точную сборку NeoForge — сузить при необходимости
-loaderVersion = "[1,)"
+# FancyModLoader 4.x — ветка, идущая с NeoForge 21.1.x (Minecraft 1.21.1).
+loaderVersion = "[4,)"
 license = "MIT"
 
 [[mods]]
@@ -13,17 +13,18 @@ Dying Light 2 style grappling hook.
 '''
 authors = "you"
 
+# 21.1.x — вся ветка NeoForge для Minecraft 1.21.1.
 [[dependencies.hell_yeah_stuff]]
 modId = "neoforge"
 type = "required"
-versionRange = "[20.5,)"
+versionRange = "[21.1.0,22.0.0)"
 ordering = "NONE"
 side = "BOTH"
 
 [[dependencies.hell_yeah_stuff]]
 modId = "minecraft"
 type = "required"
-versionRange = "[1.21,)"
+versionRange = "[1.21.1,1.22)"
 ordering = "NONE"
 side = "BOTH"
 

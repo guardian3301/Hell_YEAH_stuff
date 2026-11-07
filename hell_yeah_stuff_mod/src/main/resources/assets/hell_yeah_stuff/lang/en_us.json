@@ -37,5 +37,7 @@
   "tooltip.hell_yeah_stuff.spectral_capacitor.charged": "Charged — ready to throw",
   "entity.hell_yeah_stuff.spectral_capacitor": "Spectral Capacitor",
   "subtitles.hell_yeah_stuff.spectral_detonation": "Spectral Capacitor Detonation",
-  "subtitles.hell_yeah_stuff.bolt_whistle": "Bolt Whistle"
+  "subtitles.hell_yeah_stuff.bolt_whistle": "Bolt Whistle",
+  "painting.hell_yeah_stuff.stranger.title": "Stranger",
+  "painting.hell_yeah_stuff.stranger.author": "guardianscode"
 }
