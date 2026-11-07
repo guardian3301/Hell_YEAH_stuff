@@ -2,6 +2,7 @@ package com.example.hell_yeah_stuff;
 
 import com.example.hell_yeah_stuff.config.CommonConfig;
 import com.example.hell_yeah_stuff.registry.ModBlockEntities;
+import com.example.hell_yeah_stuff.registry.ModDataComponents;
 import com.example.hell_yeah_stuff.registry.ModBlocks;
 import com.example.hell_yeah_stuff.registry.ModEnchantmentEffects;
 import com.example.hell_yeah_stuff.registry.ModEntities;
@@ -30,5 +31,6 @@ public class HellYeahStuffMod {
         ModMobEffects.MOB_EFFECTS.register(modEventBus);
         ModEnchantmentEffects.ENCHANTMENT_ENTITY_EFFECTS.register(modEventBus);
         ModBlockEntities.BLOCK_ENTITIES.register(modEventBus);
+        ModDataComponents.DATA_COMPONENTS.register(modEventBus);
     }
 }

@@ -8,6 +8,7 @@ import com.example.hell_yeah_stuff.registry.ModEntities;
 import com.example.hell_yeah_stuff.registry.ModItems;
 import com.example.hell_yeah_stuff.registry.ModParticles;
 import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.renderer.entity.player.PlayerRenderer;
 import net.minecraft.client.renderer.item.ItemProperties;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.resources.ResourceLocation;
@@ -20,6 +21,7 @@ import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
+import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 import net.neoforged.neoforge.client.event.RegisterColorHandlersEvent;
 import net.neoforged.neoforge.client.event.RegisterItemDecorationsEvent;
@@ -101,6 +103,25 @@ public final class ClientSetup {
     private static long gameTime(@Nullable ClientLevel level, @Nullable LivingEntity entity) {
         if (level != null) return level.getGameTime();
         return entity != null ? entity.level().getGameTime() : 0L;
+    }
+
+    /**
+     * Слой тактической кобуры: добавляется в рендереры всех скинов
+     * игроков (обычный и slim) — предмет рисуется на правом бедре.
+     */
+    @SubscribeEvent
+    static void onAddLayers(EntityRenderersEvent.AddLayers event) {
+        for (var skin : event.getSkins()) {
+            if (event.getSkin(skin) instanceof PlayerRenderer playerRenderer) {
+                playerRenderer.addLayer(new HolsterRenderLayer(playerRenderer));
+            }
+        }
+    }
+
+    /** Кеш содержимого кобур чистится при отключении от сервера. */
+    @SubscribeEvent
+    static void onClientLoggingOut(ClientPlayerNetworkEvent.LoggingOut event) {
+        ClientHolsterData.clear();
     }
 
     @SubscribeEvent

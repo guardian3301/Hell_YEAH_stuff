@@ -12,6 +12,7 @@ import com.example.hell_yeah_stuff.item.MultiCrossbowItem;
 import com.example.hell_yeah_stuff.item.RailCrossbowItem;
 import com.example.hell_yeah_stuff.item.SpectralCapacitorItem;
 import com.example.hell_yeah_stuff.item.SyringeBoltItem;
+import com.example.hell_yeah_stuff.item.TacticalHolsterItem;
 import net.minecraft.world.item.Item;
 import net.neoforged.neoforge.registries.DeferredItem;
 import net.neoforged.neoforge.registries.DeferredRegister;
@@ -74,6 +75,11 @@ public final class ModItems {
     public static final DeferredItem<Item> REINFORCED_ROPE = ITEMS.register("reinforced_rope",
             () -> new BeltSlotCurioItem(new Item.Properties().stacksTo(1),
                     "tooltip.hell_yeah_stuff.reinforced_rope"));
+
+    // Тактическая кобура — Curios-аксессуар слота «belt»: хранит один инструмент/оружие (бинд V).
+    public static final DeferredItem<Item> TACTICAL_HOLSTER = ITEMS.register("tactical_holster",
+            () -> new TacticalHolsterItem(new Item.Properties().stacksTo(1),
+                    "tooltip.hell_yeah_stuff.tactical_holster"));
 
     // ------------------------------------------------------------------
     // Ингредиенты для крафта арбалетов и болтов

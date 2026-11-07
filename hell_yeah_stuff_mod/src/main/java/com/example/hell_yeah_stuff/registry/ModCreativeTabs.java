@@ -73,6 +73,9 @@ public final class ModCreativeTabs {
                 new ItemStack(ModItems.BLOCK_MAGAZINE.get()), BOTH);
         event.insertAfter(new ItemStack(ModItems.BLOCK_MAGAZINE.get()),
                 new ItemStack(ModItems.REINFORCED_ROPE.get()), BOTH);
+        // Кобура — третий аксессуар пояса, сразу после верёвки.
+        event.insertAfter(new ItemStack(ModItems.REINFORCED_ROPE.get()),
+                new ItemStack(ModItems.TACTICAL_HOLSTER.get()), BOTH);
     }
 
     /**
