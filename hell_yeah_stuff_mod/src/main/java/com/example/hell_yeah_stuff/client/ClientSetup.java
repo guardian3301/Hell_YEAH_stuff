@@ -107,7 +107,7 @@ public final class ClientSetup {
 
     /**
      * Слой тактической кобуры: добавляется в рендереры всех скинов
-     * игроков (обычный и slim) — предмет рисуется на правом бедре.
+     * игроков (обычный и slim) — убранный предмет рисуется на правом бедре.
      */
     @SubscribeEvent
     static void onAddLayers(EntityRenderersEvent.AddLayers event) {

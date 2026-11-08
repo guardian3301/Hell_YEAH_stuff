@@ -6,8 +6,6 @@ import com.example.hell_yeah_stuff.item.TacticalHolsterItem;
 import com.example.hell_yeah_stuff.network.HolsterSyncPayload;
 import com.example.hell_yeah_stuff.registry.ModItems;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.sounds.SoundEvents;
-import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -80,27 +78,19 @@ public final class HolsterHandler {
             if (mainHand.isEmpty() || !TacticalHolsterItem.isValidForHolster(mainHand)) return;
             TacticalHolsterItem.setHolstered(holster, mainHand);
             player.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
-            playSwapSound(player, 0.7F);
         } else if (mainHand.isEmpty()) {
             // Достать.
             player.setItemInHand(InteractionHand.MAIN_HAND, holstered.copy());
             TacticalHolsterItem.setHolstered(holster, ItemStack.EMPTY);
-            playSwapSound(player, 0.9F);
         } else if (TacticalHolsterItem.isValidForHolster(mainHand)) {
             // Поменять: текущее из кобуры в руку, из руки — в кобуру.
             TacticalHolsterItem.setHolstered(holster, mainHand);
             player.setItemInHand(InteractionHand.MAIN_HAND, holstered.copy());
-            playSwapSound(player, 0.8F);
         } else {
             // В руке невалидный предмет — ничего не делаем.
             return;
         }
         syncHolster(player);
-    }
-
-    private static void playSwapSound(ServerPlayer player, float pitch) {
-        player.level().playSound(null, player.blockPosition(),
-                SoundEvents.ITEM_PICKUP, SoundSource.PLAYERS, 0.7F, pitch);
     }
 
     private HolsterHandler() {}
