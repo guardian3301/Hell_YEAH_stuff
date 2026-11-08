@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:chest",
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:empty",
+          "weight": 4
+        },
+        {
+          "type": "minecraft:item",
+          "name": "hell_yeah_stuff:battle_syringe",
+          "weight": 1,
+          "functions": [
+            {
+              "function": "hell_yeah_stuff:unknown_syringe_contents"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

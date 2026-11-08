@@ -2,12 +2,14 @@ package com.example.hell_yeah_stuff;
 
 import com.example.hell_yeah_stuff.config.CommonConfig;
 import com.example.hell_yeah_stuff.registry.ModBlockEntities;
+import com.example.hell_yeah_stuff.registry.ModCriteria;
 import com.example.hell_yeah_stuff.registry.ModDataComponents;
 import com.example.hell_yeah_stuff.registry.ModBlocks;
 import com.example.hell_yeah_stuff.registry.ModEnchantmentEffects;
 import com.example.hell_yeah_stuff.registry.ModEntities;
 import com.example.hell_yeah_stuff.registry.ModFeatures;
 import com.example.hell_yeah_stuff.registry.ModItems;
+import com.example.hell_yeah_stuff.registry.ModLootFunctions;
 import com.example.hell_yeah_stuff.registry.ModMobEffects;
 import com.example.hell_yeah_stuff.registry.ModParticles;
 import com.example.hell_yeah_stuff.registry.ModSounds;
@@ -32,5 +34,7 @@ public class HellYeahStuffMod {
         ModEnchantmentEffects.ENCHANTMENT_ENTITY_EFFECTS.register(modEventBus);
         ModBlockEntities.BLOCK_ENTITIES.register(modEventBus);
         ModDataComponents.DATA_COMPONENTS.register(modEventBus);
+        ModLootFunctions.LOOT_FUNCTIONS.register(modEventBus);
+        ModCriteria.TRIGGERS.register(modEventBus);
     }
 }

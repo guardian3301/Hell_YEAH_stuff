@@ -1,0 +1,23 @@
+{
+  "parent": "minecraft:husbandry/root",
+  "display": {
+    "icon": {
+      "id": "minecraft:pufferfish"
+    },
+    "title": {
+      "translate": "advancements.hell_yeah_stuff.pufferfish_syringe.title"
+    },
+    "description": {
+      "translate": "advancements.hell_yeah_stuff.pufferfish_syringe.description"
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "pufferfish_blood": {
+      "trigger": "hell_yeah_stuff:pufferfish_syringe"
+    }
+  }
+}

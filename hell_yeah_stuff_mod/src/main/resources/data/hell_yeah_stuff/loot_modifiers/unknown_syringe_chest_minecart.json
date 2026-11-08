@@ -1,0 +1,13 @@
+{
+  "type": "neoforge:add_table",
+  "conditions": [
+    {
+      "condition": "minecraft:entity_properties",
+      "entity": "attacker",
+      "predicate": {
+        "type": "minecraft:chest_minecart"
+      }
+    }
+  ],
+  "table": "hell_yeah_stuff:chests/unknown_syringe"
+}

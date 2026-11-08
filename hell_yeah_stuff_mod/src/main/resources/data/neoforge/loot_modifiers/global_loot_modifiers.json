@@ -1,4 +1,7 @@
 {
   "replace": false,
-  "entries": []
+  "entries": [
+    "hell_yeah_stuff:unknown_syringe_spawner",
+    "hell_yeah_stuff:unknown_syringe_chest_minecart"
+  ]
 }

@@ -43,6 +43,11 @@ public class PotionClientExtensions implements IClientItemExtensions {
         if (!SyringeEffects.isSyringe(player.getUseItem())) {
             return false;
         }
+        // И только если шприц действительно можно наполнить из этого зелья:
+        // заряженный шприц занят уколом себе (SHIFT+ПКМ), поза зелья там лишняя.
+        if (!SyringeEffects.canFillFromPotion(player, player.getUsedItemHand())) {
+            return false;
+        }
         // Зелье должно быть именно в той руке, которую сейчас рисуем.
         InteractionHand potionHand = SyringeEffects.opposite(player.getUsedItemHand());
         if (SyringeClientExtensions.armFor(player, potionHand) != arm) {

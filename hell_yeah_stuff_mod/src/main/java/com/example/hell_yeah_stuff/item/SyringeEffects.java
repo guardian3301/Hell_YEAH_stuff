@@ -1,13 +1,18 @@
 package com.example.hell_yeah_stuff.item;
 
+import com.example.hell_yeah_stuff.registry.ModDataComponents;
+import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.particles.ColorParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
+import net.minecraft.util.FastColor;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
@@ -61,6 +66,18 @@ public final class SyringeEffects {
     /** Цвет «нет жидкости» — слой не тонируется. */
     public static final int NO_COLOR = -1;
 
+    /**
+     * Подсказка вместо названия скрытого эффекта: два аргумента — маска
+     * названия и маска длительности.
+     */
+    private static final String UNKNOWN_EFFECT_KEY = "tooltip.hell_yeah_stuff.syringe.unknown_effect";
+
+    /** Символ маски. */
+    private static final char MASK = '?';
+
+    /** Маска длительности: сколько угодно секунд, но состав не выдаёт. */
+    private static final String DURATION_MASK = "??:??";
+
     /** Эффект, наложенный шприцем. */
     public static PotionContents get(ItemStack stack) {
         return stack.getOrDefault(DataComponents.POTION_CONTENTS, PotionContents.EMPTY);
@@ -71,14 +88,41 @@ public final class SyringeEffects {
         return get(stack).hasEffects();
     }
 
-    /** Положить эффект в предмет (пустой {@link PotionContents#EMPTY} — разрядить). */
+    /**
+     * Состав скрыт: подсказка показывает «?» вместо названия зелья.
+     *
+     * <p>Флаг ставится только лутом (шприц с отрицательным эффектом из
+     * спавнера и вагонетки с сундуком), а снимается, как только шприц
+     * наполняют обычным способом — {@link #set} и {@link #clear}.
+     */
+    public static boolean isUnknown(ItemStack stack) {
+        return stack.getOrDefault(ModDataComponents.UNKNOWN_CONTENTS.get(), Boolean.FALSE);
+    }
+
+    /** Пометить состав как неизвестный (или снять пометку). */
+    public static void setUnknown(ItemStack stack, boolean unknown) {
+        if (unknown) {
+            stack.set(ModDataComponents.UNKNOWN_CONTENTS.get(), Boolean.TRUE);
+        } else {
+            stack.remove(ModDataComponents.UNKNOWN_CONTENTS.get());
+        }
+    }
+
+    /**
+     * Положить эффект в предмет (пустой {@link PotionContents#EMPTY} — разрядить).
+     *
+     * <p>Наполнение всегда даёт ИЗВЕСТНЫЙ состав, поэтому флаг «неизвестной
+     * жидкости» снимается: иначе шприц остался бы загадкой навсегда.
+     */
     public static void set(ItemStack stack, PotionContents contents) {
         stack.set(DataComponents.POTION_CONTENTS, contents);
+        setUnknown(stack, false);
     }
 
     /** Разрядить предмет после передачи эффекта. */
     public static void clear(ItemStack stack) {
         stack.remove(DataComponents.POTION_CONTENTS);
+        setUnknown(stack, false);
     }
 
     /** Цвет жидкости для тонировки слоя: {@link #NO_COLOR}, если эффекта нет. */
@@ -86,9 +130,18 @@ public final class SyringeEffects {
         return colorOf(get(stack));
     }
 
-    /** Цвет конкретного набора эффектов (усреднение ванильным кодом). */
+    /**
+     * Цвет конкретного набора эффектов (усреднение ванильным кодом).
+     *
+     * <p>Альфа принудительно выставляется в 255: {@code ItemRenderer} берёт
+     * альфа-канал ИМЕННО из цвета тинта ({@code FastColor.ARGB32.alpha(i)}),
+     * поэтому «голый» RGB (alpha = 0) отрисовал бы слой полностью прозрачным.
+     * Ванильные зелья по той же причине оборачивают цвет в
+     * {@code FastColor.ARGB32.opaque}. Для уже непрозрачного цвета операция
+     * ничего не меняет.
+     */
     public static int colorOf(PotionContents contents) {
-        return contents.hasEffects() ? contents.getColor() : NO_COLOR;
+        return contents.hasEffects() ? FastColor.ARGB32.opaque(contents.getColor()) : NO_COLOR;
     }
 
     /** Есть ли у сущности что забирать (мгновенные эффекты не в счёт). */
@@ -158,8 +211,10 @@ public final class SyringeEffects {
         for (MobEffectInstance instance : contents.getAllEffects()) {
             target.addEffect(new MobEffectInstance(instance), effectSource);
         }
+        // Цвет частиц — через color(stack): у «неизвестной жидкости» он
+        // подменяется, иначе облако выдало бы состав ещё до открытия подсказки.
         burst(target.level(), target.position().add(0.0D, target.getBbHeight() * 0.5D, 0.0D),
-                contents.getColor());
+                color(stack));
     }
 
     /** Облако частиц цвета жидкости — цвет тот же, что у слоя и у подсказки. */
@@ -175,9 +230,76 @@ public final class SyringeEffects {
     public static void appendTooltip(ItemStack stack, Item.TooltipContext context,
                                      List<Component> tooltip, TooltipFlag flag) {
         PotionContents contents = get(stack);
-        if (contents.hasEffects()) {
-            contents.addPotionTooltip(tooltip::add, 1.0F, context.tickRate());
+        if (!contents.hasEffects()) {
+            return;
         }
+        if (isUnknown(stack)) {
+            appendUnknownTooltip(contents, tooltip);
+            return;
+        }
+        contents.addPotionTooltip(tooltip::add, 1.0F, context.tickRate());
+    }
+
+    /**
+     * Подсказка для «неизвестной жидкости»: вместо названия эффекта — столько
+     * же «?», сколько букв в названии, вместо длительности — «??:??».
+     * Формат строки ровно ванильный: {@code ????? (??:??)}.
+     *
+     * <p>Цвет — обычный цвет эффекта в подсказках
+     * ({@link net.minecraft.world.effect.MobEffectCategory#getTooltipFormatting()}):
+     * синий у полезных, красный у вредных. Так же красит строки ванильный
+     * {@code PotionContents#addPotionTooltip}, поэтому «?» не выбиваются из
+     * общего вида подсказки.
+     *
+     * <p>Количество «?» считается по локализованному названию эффекта, то есть
+     * на русском и английском маска будет разной длины — как и само название.
+     * Пробелы и дефисы сохраняются, поэтому «???? ??????????» читается как
+     * одно название из двух слов, но состав по-прежнему не выдаёт.
+     */
+    private static void appendUnknownTooltip(PotionContents contents, List<Component> tooltip) {
+        for (MobEffectInstance instance : contents.getAllEffects()) {
+            MobEffect effect = instance.getEffect().value();
+            // withStyle(ChatFormatting) объявлен у MutableComponent, поэтому
+            // строка собирается одной цепочкой — без промежуточной переменной.
+            tooltip.add(Component.translatable(UNKNOWN_EFFECT_KEY,
+                            Component.literal(maskName(effect.getDisplayName())),
+                            Component.literal(DURATION_MASK))
+                    .withStyle(effect.getCategory().getTooltipFormatting()));
+        }
+    }
+
+    /** Каждая буква названия заменяется на «?», остальные символы остаются. */
+    private static String maskName(Component displayName) {
+        String name = displayName.getString();
+        StringBuilder masked = new StringBuilder(name.length());
+        for (int i = 0; i < name.length(); i++) {
+            char symbol = name.charAt(i);
+            masked.append(Character.isLetter(symbol) ? MASK : symbol);
+        }
+        return masked.toString();
+    }
+
+    /**
+     * В предмете лежат ровно те эффекты, что даёт съеденная рыба-ёж
+     * ({@code minecraft:pufferfish}): отравление, голод и тошнота.
+     *
+     * <p>Используется достижением «ДЖЕССЕ ты рыба ёж»: шприц, наполненный
+     * кровью после поедания рыбы-ежа, несёт все три эффекта сразу.
+     */
+    public static boolean isPufferfishContents(PotionContents contents) {
+        if (!contents.hasEffects()) {
+            return false;
+        }
+        boolean poison = false;
+        boolean hunger = false;
+        boolean nausea = false;
+        for (MobEffectInstance instance : contents.getAllEffects()) {
+            Holder<MobEffect> effect = instance.getEffect();
+            poison |= effect.is(MobEffects.POISON);
+            hunger |= effect.is(MobEffects.HUNGER);
+            nausea |= effect.is(MobEffects.CONFUSION);
+        }
+        return poison && hunger && nausea;
     }
 
     // ------------------------------------------------------------------
@@ -220,8 +342,18 @@ public final class SyringeEffects {
         return new PotionContents(Optional.empty(), contents.customColor(), List.copyOf(kept));
     }
 
-    /** В другой руке лежит зелье, из которого есть что залить. */
+    /**
+     * В другой руке лежит зелье, из которого есть что залить.
+     *
+     * <p>Заряженный шприц заливкой не занимается: у боевого шприца на нём
+     * висит укол себе (SHIFT+ПКМ), у болта — отказ. Без этой проверки
+     * анимация заливки включалась бы и во время укола себе, если во второй
+     * руке случайно лежит зелье.
+     */
     public static boolean canFillFromPotion(LivingEntity entity, InteractionHand hand) {
+        if (isCharged(entity.getItemInHand(hand))) {
+            return false;
+        }
         ItemStack other = entity.getItemInHand(opposite(hand));
         return isPotion(other) && potionContents(other).hasEffects();
     }

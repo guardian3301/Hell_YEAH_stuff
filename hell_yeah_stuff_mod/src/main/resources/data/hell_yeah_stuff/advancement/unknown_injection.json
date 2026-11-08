@@ -1,0 +1,28 @@
+{
+  "parent": "minecraft:adventure/root",
+  "display": {
+    "icon": {
+      "id": "hell_yeah_stuff:battle_syringe",
+      "components": {
+        "minecraft:potion_contents": {
+          "potion": "minecraft:poison"
+        }
+      }
+    },
+    "title": {
+      "translate": "advancements.hell_yeah_stuff.unknown_injection.title"
+    },
+    "description": {
+      "translate": "advancements.hell_yeah_stuff.unknown_injection.description"
+    },
+    "frame": "challenge",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "injected_unknown": {
+      "trigger": "hell_yeah_stuff:unknown_injection"
+    }
+  }
+}

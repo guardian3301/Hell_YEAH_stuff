@@ -1,5 +1,6 @@
 package com.example.hell_yeah_stuff.item;
 
+import com.example.hell_yeah_stuff.registry.ModCriteria;
 import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -30,6 +31,10 @@ import java.util.List;
  * чего в предмет переезжает эффект игрока с уровнем и длительностью целиком
  * (слой жидкости — как у зелья, {@link SyringeEffects}).
  *
+ * <p>SHIFT+ПКМ заряженным шприцем — обратный укол: содержимое вкалывается
+ * СЕБЕ за {@link #SELF_INJECT_DURATION} тиков (0.6 с), шприц пустеет. Так
+ * подобранный лут можно сразу применить, не тратя удар по мобу.
+ *
  * <p>ЛКМ — обычный удар мечом (урон 5, скорость 1.7). Если шприц заряжен, эффект
  * накладывается на цель в том же объёме и шприц пустеет.
  */
@@ -46,6 +51,11 @@ public class BattleSyringeItem extends SwordItem {
     public static final int DURABILITY = 325;
     /** Длительность «укола» в тиках (как натяжение арбалета). */
     public static final int INJECT_DURATION = 20;
+    /**
+     * Длительность укола себе заряженным шприцем — 0.6 с (12 тиков).
+     * Короче набора крови: колоть чужое содержимое себе быстрее, чем цедить своё.
+     */
+    public static final int SELF_INJECT_DURATION = 12;
     /** Урон себе при уколе — 1 сердце. */
     public static final float SELF_DAMAGE = 2.0F;
 
@@ -82,7 +92,8 @@ public class BattleSyringeItem extends SwordItem {
 
     @Override
     public int getUseDuration(ItemStack stack, LivingEntity entity) {
-        return INJECT_DURATION;
+        // Заряженный шприц колет СЕБЕ быстрее (0.6 с), чем набирает кровь (1 с).
+        return SyringeEffects.isCharged(stack) ? SELF_INJECT_DURATION : INJECT_DURATION;
     }
 
     /**
@@ -94,14 +105,26 @@ public class BattleSyringeItem extends SwordItem {
      * (см. {@link #finishUsingItem}).
      *
      * <p>Заряженный шприц не перезаряжается — сначала нужно потратить эффект
-     * ударом. Если в крови нет эффектов и зелья во второй руке тоже нет,
-     * колоть нечего.
+     * ударом или вколоть его себе через SHIFT+ПКМ. Если в крови нет эффектов
+     * и зелья во второй руке тоже нет, колоть нечего.
      */
     @Override
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
         if (SyringeEffects.isCharged(stack)) {
-            return InteractionResultHolder.fail(stack);
+            // SHIFT+ПКМ — обратный укол: содержимое уходит в игрока за 0.6 с.
+            // Без SHIFT заряженный шприц просто лежит в руке и ждёт удара.
+            if (!player.isShiftKeyDown()) {
+                return InteractionResultHolder.fail(stack);
+            }
+            if (player.getCooldowns().isOnCooldown(stack.getItem())) {
+                return InteractionResultHolder.fail(stack);
+            }
+            if (!level.isClientSide) {
+                player.getCooldowns().addCooldown(stack.getItem(), SELF_INJECT_DURATION);
+            }
+            player.startUsingItem(hand);
+            return InteractionResultHolder.consume(stack);
         }
         // Заливка из зелья во второй руке: ни укола, ни потери сердца.
         boolean filling = SyringeEffects.canFillFromPotion(player, hand);
@@ -126,12 +149,14 @@ public class BattleSyringeItem extends SwordItem {
     }
 
     /**
-     * Конец анимации. Два режима:
+     * Конец анимации. Три режима:
      * <ul>
+     *   <li><b>укол себе</b> — шприц уже заряжен (SHIFT+ПКМ): содержимое
+     *       накладывается на игрока, шприц пустеет;</li>
      *   <li><b>заливка</b> — эффект зелья из второй руки переезжает в шприц
      *       целиком (уровни и длительности как есть), зелье становится пустой
      *       бутылкой;</li>
-     *   <li><b>укол</b> — эффект игрока переезжает в шприц.</li>
+     *   <li><b>набор крови</b> — эффект игрока переезжает в шприц.</li>
      * </ul>
      *
      * <p>Выполняется только на сервере — клиент получает изменения через
@@ -142,9 +167,14 @@ public class BattleSyringeItem extends SwordItem {
         if (!(entity instanceof Player player) || level.isClientSide) {
             return stack;
         }
+        if (SyringeEffects.isCharged(stack)) {
+            injectSelf(stack, level, player);
+            return stack;
+        }
         InteractionHand hand = entity.getUsedItemHand();
         // Рука со шприцем ещё известна: stopUsingItem() вызывается после нас.
-        PotionContents contents = SyringeEffects.canFillFromPotion(player, hand)
+        boolean fromPotion = SyringeEffects.canFillFromPotion(player, hand);
+        PotionContents contents = fromPotion
                 ? SyringeEffects.consumePotion(player, SyringeEffects.opposite(hand))
                 : SyringeEffects.extract(player, SyringeEffects.FULL_TRANSFER);
         if (!contents.hasEffects()) {
@@ -155,7 +185,30 @@ public class BattleSyringeItem extends SwordItem {
                 contents.getColor());
         level.playSound(null, player.getX(), player.getY(), player.getZ(),
                 SoundEvents.BOTTLE_FILL, SoundSource.PLAYERS, 0.9F, 1.2F);
+        // Рыба-ёж даёт отравление, голод и тошноту — шприц, набранный из крови
+        // после её поедания, несёт все три эффекта сразу.
+        if (!fromPotion && SyringeEffects.isPufferfishContents(contents)) {
+            ModCriteria.trigger(ModCriteria.PUFFERFISH_SYRINGE, player);
+        }
         return stack;
+    }
+
+    /**
+     * Вколоть содержимое заряженного шприца себе.
+     *
+     * <p>Шприц пустеет, а если состав был скрыт («неизвестная жидкость»),
+     * засчитывается достижение «САНЯ, ЭТО ТОЧНО РЯЗАНЬ?» — флаг читается
+     * ДО {@link SyringeEffects#clear}, который его снимает.
+     */
+    private static void injectSelf(ItemStack stack, Level level, Player player) {
+        boolean unknown = SyringeEffects.isUnknown(stack);
+        SyringeEffects.apply(stack, player, player);
+        SyringeEffects.clear(stack);
+        level.playSound(null, player.getX(), player.getY(), player.getZ(),
+                SoundEvents.BOTTLE_EMPTY, SoundSource.PLAYERS, 0.9F, 1.3F);
+        if (unknown) {
+            ModCriteria.trigger(ModCriteria.UNKNOWN_INJECTION, player);
+        }
     }
 
     /** Удар: эффект передаётся цели, шприц пустеет. */
