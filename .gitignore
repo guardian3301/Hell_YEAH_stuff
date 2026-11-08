@@ -34,13 +34,8 @@ hell_yeah_stuff_mod/net/
 *.jar
 !hell_yeah_stuff_mod/build/**/*.jar
 
-# ---- Ponytail skills (local) ----
-.agents/skills/ponytail-audit/
-.agents/skills/ponytail-debt/
-.agents/skills/ponytail-gain/
-.agents/skills/ponytail-help/
-.agents/skills/ponytail-review/
-.agents/skills/ponytail/
+# ---- Agent skills (local tooling, not part of the mod) ----
+.agents/
 .claude/skills/ponytail-audit/
 .claude/skills/ponytail-debt/
 .claude/skills/ponytail-gain/
