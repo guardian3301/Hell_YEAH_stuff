@@ -1,3 +1,5 @@
+# Hell Yeah Stuff
+
 ## ENG
 
 A small NeoForge mod that adds movement tools and questionable alchemy to
@@ -25,12 +27,11 @@ things you probably shouldn't inject.
 - Minecraft **1.21.1**
 - NeoForge **21.1.x**
 - Java **21**
-- Curious
 
 [Curios](https://www.curseforge.com/minecraft/mc-mods/curios) is optional — only
 the belt accessories need it.
 
-##RU
+## RU
 
 Небольшой мод для NeoForge 1.21.1: крюк-кошка в стиле Dying Light 2,
 арбалеты под болты и дротики, и шприцы, в которые лучше не заглядывать.
@@ -54,10 +55,19 @@ the belt accessories need it.
 - Minecraft **1.21.1**
 - NeoForge **21.1.x**
 - Java **21**
-- Curious
 
-## Building
+[Curios](https://www.curseforge.com/minecraft/mc-mods/curios) — опционально,
+нужен только для аксессуаров на пояс.
+
+## Building / Сборка
 
 ```bash
 cd hell_yeah_stuff_mod
 ./gradlew build
+```
+
+The jar lands in `build/libs/`. / Готовый jar — в `build/libs/`.
+
+## License
+
+MIT — see [LICENSE](LICENSE).
