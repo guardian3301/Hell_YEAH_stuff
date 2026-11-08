@@ -30,6 +30,8 @@ things you probably shouldn't inject.
 [Curios](https://www.curseforge.com/minecraft/mc-mods/curios) is optional — only
 the belt accessories need it.
 
+##RU
+
 Небольшой мод для NeoForge 1.21.1: крюк-кошка в стиле Dying Light 2,
 арбалеты под болты и дротики, и шприцы, в которые лучше не заглядывать.
 
